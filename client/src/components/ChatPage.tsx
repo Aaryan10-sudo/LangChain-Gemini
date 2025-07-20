@@ -3,16 +3,21 @@
 import { useState } from "react";
 import { SendHorizonal } from "lucide-react";
 
+// Define the message type
+type Message = {
+  sender: "user" | "bot";
+  text: string;
+};
+
 export default function ChatPage() {
-  const [messages, setMessages] = useState<
-    { sender: "user" | "bot"; text: string }[]
-  >([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    const userMessage = { sender: "user", text: input };
+
+    const userMessage: Message = { sender: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
@@ -23,8 +28,10 @@ export default function ChatPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input }),
       });
-      const data = await res.json();
-      setMessages((prev) => [...prev, { sender: "bot", text: data.reply }]);
+
+      const data: { reply: string } = await res.json();
+      const botMessage: Message = { sender: "bot", text: data.reply };
+      setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -36,8 +43,8 @@ export default function ChatPage() {
   };
 
   return (
-    <main className="flex flex-col h-screen  text-white w-full mx-auto">
-      <h1 className=" text-white py-5 font-bold text-[30px] px-5">
+    <main className="flex flex-col h-screen text-white w-full mx-auto">
+      <h1 className="text-white py-5 font-bold text-[30px] px-5">
         Aaryan LLM - Gemini
       </h1>
 
@@ -55,8 +62,8 @@ export default function ChatPage() {
           </div>
         ))}
         {loading && (
-          <div className="mr-auto max-w-xl  py-2 rounded-lg bg-gray-800 animate-pulse bg-transparent">
-            Aaryan Is typing...
+          <div className="mr-auto max-w-xl py-2 rounded-lg text-gray-400 animate-pulse">
+            Aaryan is typing...
           </div>
         )}
       </div>
